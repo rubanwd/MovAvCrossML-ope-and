@@ -166,7 +166,6 @@ class MovingAverageCrossoverMLBot:
             logging.error(f"Error in run_strategy: {e}")
             print(f"Error in run_strategy: {e}")
 
-
     def run(self):
         self.run_strategy()
         schedule.every(1).minutes.do(self.run_strategy)
