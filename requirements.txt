@@ -1,0 +1,6 @@
+pandas
+numpy
+scikit-learn
+schedule
+python-dotenv
+requests
