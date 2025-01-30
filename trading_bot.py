@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from dotenv import load_dotenv
 from bybit_demo_session import BybitDemoSession  # Import your session class here
+from datetime import datetime, timedelta
 
 logging.basicConfig(filename="trading_bot.log", level=logging.INFO, format="%(asctime)s - %(message)s")
 
@@ -129,6 +130,14 @@ class MovingAverageCrossoverMLBot:
                 logging.info("Open positions exist. Skipping new trade.")
                 print("Open positions exist. Skipping new trade.")
                 return
+            
+            last_closed_time = self.data_fetcher.get_last_closed_position_time(self.symbol)
+            if last_closed_time:
+                time_since_last_trade = datetime.utcnow() - last_closed_time
+                if time_since_last_trade < timedelta(hours=3):
+                    logging.info(f"Last trade closed {time_since_last_trade} ago. Skipping trade.")
+                    print(f"Last trade closed {time_since_last_trade} ago. Waiting for 3 hours.")
+                    return
 
             print("Fetching historical data...")
             historical_data = self.data_fetcher.get_historical_data(self.symbol, interval="60", limit=200)

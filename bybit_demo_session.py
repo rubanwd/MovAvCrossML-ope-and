@@ -2,7 +2,7 @@ import requests
 import time
 import hashlib
 import hmac
-import os
+from datetime import datetime, timedelta
 
 
 class BybitDemoSession:
@@ -129,3 +129,23 @@ class BybitDemoSession:
         endpoint = "/v5/market/tickers"
         params = {"category": "linear", "symbol": symbol}
         return float(self.send_request("GET", endpoint, params)['result']['list'][0]['lastPrice'])
+    
+    def get_last_closed_position_time(self, symbol):
+        """Fetches the last closed position time."""
+        try:
+            endpoint = "/v5/position/closed-pnl"
+            params = {"category": "linear", "symbol": symbol, "limit": 1}
+            response = self.send_request("GET", endpoint, params)
+
+            if response['retCode'] != 0:
+                raise Exception(f"API Error: {response['retMsg']}")
+
+            closed_positions = response['result']['list']
+            if not closed_positions:
+                return None  # No closed positions found
+
+            last_closed_time = int(closed_positions[0]['updatedTime'])  # Timestamp in milliseconds
+            return datetime.utcfromtimestamp(last_closed_time / 1000)  # Convert to datetime
+        except Exception as e:
+            print(f"Error fetching last closed position time: {e}")
+            return None
